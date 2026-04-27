@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Cheltuieli RON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d1117; --surface:#161b22; --surface2:#1e2530; --surface3:#252d3a;
+      --border:#2a3441; --accent:#00d68f; --accent-dim:rgba(0,214,143,0.12);
+      --text:#e8edf3; --text2:#8b96a5; --text3:#5a6474;
+      --danger:#ff5c5c; --danger-dim:rgba(255,92,92,0.12);
+      --card-color:#4f8ef7; --card-dim:rgba(79,142,247,0.12);
+      --tichete:#f5a623; --tichete-dim:rgba(245,166,35,0.14);
+      --radius:16px; --radius-sm:10px;
+      --nav-h:72px; --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Lexend',sans-serif;font-size:15px;line-height:1.5}
+    #root{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative}
+
+    .screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+    .screen::-webkit-scrollbar{display:none}
+    .screen.has-nav{padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px)}
+
+    #loader{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:9999}
+    .spinner{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #loader p{font-size:13px;color:var(--text2)}
+
+    .setup-wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+    .setup-logo{font-size:52px;margin-bottom:8px}
+    .setup-title{font-family:'Fraunces',serif;font-size:28px;font-weight:700;text-align:center;margin-bottom:6px}
+    .setup-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:24px;line-height:1.6;max-width:340px}
+    .setup-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px}
+    .setup-card h3{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:14px}
+    .step-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--border)}
+    .step-row:first-of-type{border-top:none;padding-top:4px}
+    .step-num{width:24px;height:24px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(0,214,143,.3);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .step-text{font-size:13px;color:var(--text2);line-height:1.65;flex:1}
+    .step-text strong{color:var(--text);font-weight:600}
+    .step-text code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent);font-family:monospace}
+    .step-text a{color:var(--accent);text-decoration:underline}
+    .form-label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;margin-top:8px}
+    .form-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;color:var(--text);font-family:'Lexend',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+    .form-input:focus{border-color:var(--accent)}
+    .form-input.mono{font-family:monospace;font-size:12px;letter-spacing:.5px}
+    .form-input.big{font-family:'Fraunces',serif;font-size:22px;font-weight:600;text-align:center;letter-spacing:1px}
+    .btn-primary{width:100%;padding:15px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#0d1117;font-family:'Lexend',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
+    .btn-primary:active{transform:scale(.98);opacity:.9}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-secondary{width:100%;padding:13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Lexend',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+    .btn-secondary:active{background:var(--surface3)}
+    .btn-danger{background:var(--danger-dim);border-color:rgba(255,92,92,.3);color:var(--danger)}
+    .link-btn{background:none;border:none;color:var(--accent);font-family:'Lexend',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+    .opt-tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--surface2);padding:4px;border-radius:var(--radius-sm)}
+    .opt-tab{flex:1;padding:10px;text-align:center;border-radius:6px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;font-family:'Lexend',sans-serif}
+    .opt-tab.active{background:var(--accent);color:#0d1117;font-weight:700}
+
+    /* SYNC BAR */
+    #sync-bar{padding:8px 20px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);min-height:36px}
+    .sync-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+    .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+    .sync-dot.ok{background:var(--accent);animation:pulse 2.5s infinite}
+    .sync-dot.syncing{background:var(--card-color);animation:spin .8s linear infinite;border-top-color:transparent}
+    .sync-dot.error{background:var(--danger)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .sync-user{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px}
+    .avatar{width:20px;height:20px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(0,214,143,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase}
+    .sync-btn{padding:4px 10px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-family:'Lexend',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .sync-btn:active{background:var(--surface3);transform:scale(.95)}
+
+    /* BOTTOM NAV */
+    .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-bottom));background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Lexend',sans-serif;transition:color .2s}
+    .nav-item.active{color:var(--accent)}
+    .nav-item svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .nav-item span{font-size:10px;font-weight:500}
+    .nav-add{width:52px;height:52px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-20px;box-shadow:0 4px 20px rgba(0,214,143,.4);transition:transform .2s}
+    .nav-add:active{transform:scale(.92)}
+    .nav-add svg{stroke:#0d1117;width:24px;height:24px;stroke-width:2.5}
+
+    .page-header{padding:16px 20px 10px;position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid transparent;transition:border-color .2s}
+    .page-header.scrolled{border-color:var(--border)}
+    .page-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;letter-spacing:-.5px}
+    .page-subtitle{font-size:12px;color:var(--text2);margin-top:2px}
+
+    .month-picker{display:flex;align-items:center;gap:12px;padding:0 20px 14px}
+    .month-btn{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .month-btn:active{transform:scale(.9)}
+    .month-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .month-label{flex:1;text-align:center;font-size:15px;font-weight:600}
+
+    .big-summary{margin:0 20px 12px;background:linear-gradient(135deg,#1a2535,#0f1a2a);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+    .big-summary::after{content:'lei';position:absolute;right:16px;bottom:8px;font-family:'Fraunces',serif;font-size:64px;font-weight:700;color:rgba(255,255,255,.03);line-height:1}
+    .big-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text2)}
+    .big-value{font-family:'Fraunces',serif;font-size:40px;font-weight:700;color:var(--text);letter-spacing:-1px;line-height:1.1;margin-top:4px}
+    .big-value span{font-size:18px;color:var(--text2);font-weight:400}
+    .progress-bar{height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-top:12px}
+    .progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#00a8d6);transition:width .6s cubic-bezier(.4,0,.2,1)}
+    .progress-fill.over{background:linear-gradient(90deg,#f5a623,var(--danger))}
+    .progress-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--text2)}
+
+    .acc-cards-row{display:flex;gap:10px;overflow-x:auto;padding:0 20px 12px;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+    .acc-cards-row::-webkit-scrollbar{display:none}
+    .acc-card{flex-shrink:0;width:148px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;position:relative;overflow:hidden;scroll-snap-align:start}
+    .acc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .acc-card.t-cash::before{background:var(--accent)}
+    .acc-card.t-card::before{background:var(--card-color)}
+    .acc-card.t-tichete::before{background:var(--tichete)}
+    .ac-hdr{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+    .ac-emoji{font-size:18px}
+    .ac-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+    .ac-owner-tag{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ac-spent{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px;line-height:1.1}
+    .ac-spent .cur{font-size:11px;font-weight:400;color:var(--text2);margin-left:2px}
+    .ac-rem{font-size:10px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ac-rem.over{color:var(--danger)}
+
+    .section{padding:0 20px 16px}
+    .section-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px}
+
+    .expense-list{display:flex;flex-direction:column;gap:8px}
+    .expense-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 13px 13px 15px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
+    .expense-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+    .expense-item.cash-item::before{background:var(--accent)}
+    .expense-item.card-item::before{background:var(--card-color)}
+    .expense-item.tichete-item::before{background:var(--tichete)}
+    .exp-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .exp-info{flex:1;min-width:0}
+    .exp-desc{font-weight:500;color:var(--text);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .exp-meta{font-size:11px;color:var(--text2);margin-top:2px}
+    .exp-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:99px;font-size:9px;font-weight:600;margin-right:4px}
+    .badge-cash{background:var(--accent-dim);color:var(--accent)}
+    .badge-card{background:var(--card-dim);color:var(--card-color)}
+    .badge-tichete{background:var(--tichete-dim);color:var(--tichete)}
+    .added-by{display:inline-flex;align-items:center;gap:4px;padding:1px 7px 1px 2px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);font-size:9px;font-weight:600;color:var(--text2);margin-left:4px}
+    .added-by .ab-avatar{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;text-transform:uppercase;flex-shrink:0}
+    .ab-me{background:var(--accent)}
+    .ab-other{background:var(--card-color)}
+    .exp-amount{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--danger);white-space:nowrap}
+    .exp-actions{display:flex;gap:5px}
+    .icon-btn{width:30px;height:30px;border-radius:8px;border:none;background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .icon-btn:active{transform:scale(.88)}
+    .icon-btn.del:active{background:var(--danger-dim);color:var(--danger)}
+    .icon-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .empty-state{text-align:center;padding:36px 20px;color:var(--text2)}
+    .empty-state .emoji{font-size:44px;margin-bottom:10px}
+    .empty-state p{font-size:13px}
+
+    .form-view{padding:0 20px}
+    .form-group{margin-bottom:16px}
+    .form-label-sm{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:7px}
+    .form-inp{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;color:var(--text);font-family:'Lexend',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+    .form-inp:focus{border-color:var(--accent)}
+    .amount-inp{font-family:'Fraunces',serif;font-size:30px;font-weight:700;text-align:center;letter-spacing:-.5px}
+    .amount-wrap{position:relative}
+    .amount-cur{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text2);pointer-events:none}
+
+    .acc-picker{display:flex;gap:7px;overflow-x:auto;padding:3px 0 5px}
+    .acc-picker::-webkit-scrollbar{display:none}
+    .acc-pill{flex-shrink:0;min-width:88px;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Lexend',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2;text-align:center}
+    .acc-pill .ap-emoji{font-size:18px}
+    .acc-pill .ap-name{white-space:nowrap;font-size:12px}
+    .acc-pill .ap-owner{font-size:9px;color:var(--text3);font-weight:600;margin-top:1px;letter-spacing:.2px}
+    .acc-pill.sel-cash{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+    .acc-pill.sel-cash .ap-owner{color:var(--accent)}
+    .acc-pill.sel-card{background:var(--card-dim);border-color:var(--card-color);color:var(--card-color)}
+    .acc-pill.sel-card .ap-owner{color:var(--card-color)}
+    .acc-pill.sel-tichete{background:var(--tichete-dim);border-color:var(--tichete);color:var(--tichete)}
+    .acc-pill.sel-tichete .ap-owner{color:var(--tichete)}
+
+    .toggle-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+    .tog-btn{padding:11px 4px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Lexend',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2}
+    .tog-btn .tog-emoji{font-size:18px}
+    .tog-btn.cash-on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+    .tog-btn.card-on{background:var(--card-dim);border-color:var(--card-color);color:var(--card-color)}
+    .tog-btn.tichete-on{background:var(--tichete-dim);border-color:var(--tichete);color:var(--tichete)}
+
+    .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .cat-btn{padding:9px 5px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Lexend',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .cat-btn .ce{font-size:19px}
+    .cat-btn.sel{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+    .budget-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+    .bud-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .bud-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px}
+    .bud-icon.cash-icon{background:var(--accent-dim)}
+    .bud-icon.card-icon{background:var(--card-dim)}
+    .bud-icon.tichete-icon{background:var(--tichete-dim)}
+    .bud-title{font-size:15px;font-weight:600}
+    .bud-desc{font-size:11px;color:var(--text2)}
+    .bud-row{display:flex;gap:8px;align-items:center}
+    .bud-inp-wrap{flex:1;position:relative}
+    .bud-inp-wrap input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 44px 11px 12px;color:var(--text);font-family:'Fraunces',serif;font-size:19px;font-weight:700;outline:none;transition:border-color .2s;-webkit-appearance:none}
+    .bud-inp-wrap input:focus{border-color:var(--accent)}
+    .bud-inp-wrap .sfx{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text2);pointer-events:none}
+    .save-btn{padding:11px 16px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#0d1117;font-family:'Lexend',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+    .save-btn:active{transform:scale(.95)}
+    .stat-row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--border)}
+    .stat-label{font-size:12px;color:var(--text2)}
+    .stat-value{font-size:12px;font-weight:600}
+    .green{color:var(--accent)}
+    .red{color:var(--danger)}
+
+    .acc-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px;position:relative;overflow:hidden}
+    .acc-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+    .acc-item.t-cash::before{background:var(--accent)}
+    .acc-item.t-card::before{background:var(--card-color)}
+    .acc-item.t-tichete::before{background:var(--tichete)}
+    .acc-item-emoji{font-size:20px;width:30px;text-align:center}
+    .acc-item-info{flex:1;min-width:0}
+    .acc-item-name{font-weight:500;font-size:13px}
+    .acc-item-meta{font-size:10px;color:var(--text2);margin-top:1px}
+
+    .cat-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px}
+    .cat-item-emoji{font-size:21px;width:32px;text-align:center}
+    .cat-item-name{flex:1;font-weight:500;font-size:13px}
+    .cat-add-form{display:flex;gap:7px;margin-bottom:14px}
+    .emoji-inp,.name-inp{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px;color:var(--text);font-family:'Lexend',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+    .emoji-inp{width:56px;text-align:center;font-size:19px}
+    .emoji-inp:focus,.name-inp:focus{border-color:var(--accent)}
+    .name-inp{flex:1}
+    .cat-add-btn{padding:11px 14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#0d1117;font-family:'Lexend',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+    .cat-add-btn:active{transform:scale(.95)}
+
+    .filter-bar{display:flex;gap:7px;padding:0 20px 12px;overflow-x:auto}
+    .filter-bar::-webkit-scrollbar{display:none}
+    .chip{display:flex;align-items:center;padding:6px 12px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Lexend',sans-serif;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s}
+    .chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+    .toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:9px 18px;font-size:12px;font-weight:500;color:var(--text);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.ok{border-color:var(--accent);color:var(--accent)}
+    .toast.err{border-color:var(--danger);color:var(--danger)}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal-sheet{width:100%;background:var(--surface);border-radius:24px 24px 0 0;padding:22px 20px 40px;transform:translateY(28px);transition:transform .3s}
+    .modal-overlay.open .modal-sheet{transform:translateY(0)}
+    .modal-handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+    .modal-title{font-family:'Fraunces',serif;font-size:19px;font-weight:700;margin-bottom:18px}
+
+    .settings-view{padding:0 20px 32px}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);gap:10px}
+    .info-label{font-size:12px;color:var(--text2)}
+    .info-value{font-size:12px;font-weight:500;color:var(--text);font-family:monospace;text-align:right;word-break:break-all}
+
+    /* HELP */
+    .help-view{padding:0 20px 32px}
+    .help-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+    .help-section h3{font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}
+    .help-section p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:10px}
+    .help-section p:last-child{margin-bottom:0}
+    .help-section strong{color:var(--text);font-weight:600}
+    .help-section code{background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:12px;color:var(--accent);font-family:monospace}
+    .help-section ul{list-style:none;padding:0;margin:8px 0}
+    .help-section li{font-size:13px;color:var(--text2);line-height:1.7;padding:5px 0 5px 22px;position:relative}
+    .help-section li::before{content:'→';position:absolute;left:0;color:var(--accent);font-weight:700}
+    .help-tip{background:var(--accent-dim);border:1px solid rgba(0,214,143,0.25);border-radius:var(--radius-sm);padding:11px 14px;margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6}
+    .help-tip strong{color:var(--accent)}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-family:'Lexend',sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-bottom:8px}
+    .back-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+    .header-action{position:absolute;top:18px;right:20px;width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .header-action:active{transform:scale(.9)}
+    .header-action svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    input[type="date"].form-inp{color-scheme:dark}
+    input[type="date"].form-input{color-scheme:dark}
+    select.form-input option,select.form-inp option{background:#1e2530}
+    .fade-in{animation:fadeUp .25s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<div id="loader"><div class="spinner"></div><p id="loader-msg">Se încarcă…</p></div>
+<div id="root" style="display:none"></div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  CONFIG & CONSTANTS
+// ════════════════════════════════════════════════════════════════
+const LS = {
+  apiKey:    'cheltuieli_apiKey',
+  binId:     'cheltuieli_binId',
+  shareCode: 'cheltuieli_shareCode',
+  userName:  'cheltuieli_userName',
+};
+const JSONBIN_API = 'https://api.jsonbin.io/v3';
+
+const DEFAULT_CATEGORIES = [
+  {id:'c1',name:'Mâncare',emoji:'🍔'},{id:'c2',name:'Transport',emoji:'🚗'},
+  {id:'c3',name:'Utilități',emoji:'💡'},{id:'c4',name:'Divertisment',emoji:'🎬'},
+  {id:'c5',name:'Sănătate',emoji:'💊'},{id:'c6',name:'Îmbrăcăminte',emoji:'👕'},
+  {id:'c7',name:'Educație',emoji:'📚'},{id:'c8',name:'Casă',emoji:'🏠'},
+  {id:'c9',name:'Altele',emoji:'📦'},
+];
+
+const DEFAULT_ACCOUNTS = [
+  { id:'acc-cash',    name:'Cash',         type:'cash',    emoji:'💵', owner:'' },
+  { id:'acc-card',    name:'Card',         type:'card',    emoji:'💳', owner:'' },
+  { id:'acc-tichete', name:'Tichete Masă', type:'tichete', emoji:'🎟️', owner:'' },
+];
+
+// ════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════
+let apiKey    = localStorage.getItem(LS.apiKey)    || '';
+let binId     = localStorage.getItem(LS.binId)     || '';
+let shareCode = localStorage.getItem(LS.shareCode) || '';
+let userName  = localStorage.getItem(LS.userName)  || '';
+
+let appData = null;
+let syncStatus = 'idle';
+let lastSyncAt = null;
+let lastSyncBy = '';
+let saveTimer  = null;
+
+let currentView   = 'home';
+let selectedMonth = todayMonth();
+let expFilter     = 'all';
+let editingId     = null;
+let addForm = { amount:'', description:'', categoryId:'', accountId:'', date: todayStr() };
+let pendingAccType = 'cash';
+
+// ════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════
+function todayStr()   { return new Date().toISOString().split('T')[0]; }
+function todayMonth() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function genId()      { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function monthKey(s)  { return s ? s.slice(0,7) : ''; }
+
+function formatMonth(ym) {
+  const [y,m] = ym.split('-');
+  return ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'][+m-1]+' '+y;
+}
+function shiftMonth(ym,dir) {
+  const [y,m]=ym.split('-').map(Number);
+  const d=new Date(y,m-1+dir,1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function formatRon(n) { return new Intl.NumberFormat('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0); }
+function formatDate(s) { if(!s) return ''; return new Date(s+'T00:00:00').toLocaleDateString('ro-RO',{day:'numeric',month:'short'}); }
+function formatTime(d) { if(!d) return ''; return new Date(d).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}); }
+function getCat(id) { return appData?.categories?.find(c=>c.id===id)||{name:'Altele',emoji:'📦'}; }
+function getAccount(id) {
+  return appData?.accounts?.find(a=>a.id===id) || { id, name:'?', type:'cash', emoji:'💵', owner:'' };
+}
+function ownerName(name) { return name ? name : ''; }
+function monthExps() { return (appData?.expenses||[]).filter(e=>monthKey(e.date)===selectedMonth); }
+function emptyDB() {
+  return {
+    version: 3,
+    lastModified: new Date().toISOString(),
+    lastModifiedBy: userName,
+    expenses: [],
+    categories: [...DEFAULT_CATEGORIES],
+    accounts: [...DEFAULT_ACCOUNTS],
+    budgets: {},
+  };
+}
+function migrateDB(d) {
+  if (!d) return d;
+  if (!d.accounts?.length) d.accounts = [...DEFAULT_ACCOUNTS];
+  if (!d.categories?.length) d.categories = [...DEFAULT_CATEGORIES];
+  if (!d.budgets) d.budgets = {};
+  if (!d.expenses) d.expenses = [];
+  d.expenses.forEach(e => { if (!e.accountId) e.accountId = 'acc-' + (e.method || 'cash'); });
+  return d;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  JSONBIN API
+// ════════════════════════════════════════════════════════════════
+async function jbCreateBin(content) {
+  const resp = await fetch(`${JSONBIN_API}/b`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': apiKey,
+      'X-Bin-Name':   'cheltuieli-' + (shareCode || 'default'),
+      'X-Bin-Private':'false',
+    },
+    body: JSON.stringify(content),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(()=>({}));
+    throw new Error(err.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  return data.metadata.id;
+}
+
+async function jbReadBin(id) {
+  const resp = await fetch(`${JSONBIN_API}/b/${id}/latest`, {
+    headers: { 'X-Master-Key': apiKey },
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(()=>({}));
+    throw new Error(err.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  return data.record;
+}
+
+async function jbUpdateBin(id, content) {
+  const resp = await fetch(`${JSONBIN_API}/b/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': apiKey,
+    },
+    body: JSON.stringify(content),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(()=>({}));
+    throw new Error(err.message || `HTTP ${resp.status}`);
+  }
+}
+
+// Search for an existing bin by name (used when joining via share code)
+async function jbFindBinByCode(code) {
+  // JSONBin doesn't expose bin search, so we use a separate "directory" bin
+  // Actually simpler: use a deterministic ID approach via the share code itself
+  // For simplicity, we ask the second user to paste the Bin ID directly
+  return null;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  DATA LOAD/SAVE
+// ════════════════════════════════════════════════════════════════
+async function loadData() {
+  setSyncStatus('syncing');
+  try {
+    const data = await jbReadBin(binId);
+    appData = migrateDB(data);
+    lastSyncAt = new Date();
+    lastSyncBy = data.lastModifiedBy || '';
+    setSyncStatus('ok');
+    return data;
+  } catch(err) {
+    setSyncStatus('error');
+    throw err;
+  }
+}
+
+async function saveData() {
+  if (!binId || !appData) return;
+  setSyncStatus('syncing');
+  try {
+    appData.lastModified   = new Date().toISOString();
+    appData.lastModifiedBy = userName;
+    await jbUpdateBin(binId, appData);
+    lastSyncAt = new Date();
+    lastSyncBy = userName;
+    setSyncStatus('ok');
+    renderSyncBar();
+  } catch(err) {
+    setSyncStatus('error');
+    renderSyncBar();
+    showToast('Eroare sincronizare: ' + err.message, 'err');
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveData(), 1500);
+}
+
+function setSyncStatus(s) { syncStatus = s; renderSyncBar(); }
+
+// ════════════════════════════════════════════════════════════════
+//  BOOT FLOW
+// ════════════════════════════════════════════════════════════════
+window.addEventListener('load', boot);
+
+async function boot() {
+  if (!apiKey)   { showSetupApiKey(); return; }
+  if (!userName) { showSetupName(); return; }
+  if (!binId)    { showSetupDatabase(); return; }
+  await startApp();
+}
+
+function setLoader(msg) {
+  document.getElementById('loader').style.display='flex';
+  document.getElementById('loader-msg').textContent=msg||'Se încarcă…';
+  document.getElementById('root').style.display='none';
+}
+function hideLoader() {
+  document.getElementById('loader').style.display='none';
+  document.getElementById('root').style.display='flex';
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SETUP: API KEY
+// ════════════════════════════════════════════════════════════════
+function showSetupApiKey() {
+  hideLoader();
+  document.getElementById('root').innerHTML = `
+    <div class="screen">
+      <div class="setup-wrap">
+        <div class="setup-logo">💳</div>
+        <div class="setup-title">Cheltuieli RON</div>
+        <div class="setup-sub">Tracker de cheltuieli cu sincronizare cloud pentru 2 utilizatori. Foarte simplu — fără Google.</div>
+
+        <div class="setup-card">
+          <h3>📋 Pasul 1 — Obține o cheie gratuită JSONBin</h3>
+          <div class="step-row"><div class="step-num">1</div><div class="step-text">Mergi la <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> și apasă <strong>Sign Up Free</strong></div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text">Înregistrează-te cu un email (sau cu Google). Confirmă emailul dacă e cazul.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text">După login, în meniul din stânga apasă <strong>API Keys</strong></div></div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-text">Apasă <strong>Create Access Key</strong> (sau folosește <strong>X-MASTER-KEY</strong> care există deja)</div></div>
+          <div class="step-row"><div class="step-num">5</div><div class="step-text">Copiază cheia (un șir lung de caractere)</div></div>
+        </div>
+
+        <div class="setup-card">
+          <h3>🔑 Pasul 2 — Lipește cheia aici</h3>
+          <label class="form-label">JSONBin API Key</label>
+          <input type="text" class="form-input mono" id="inp-apikey" placeholder="$2a$10$xxxxxxxxxxxx..." style="margin-bottom:12px">
+          <button class="btn-primary" onclick="saveApiKey()">Continuă →</button>
+        </div>
+
+        <div style="font-size:11px;color:var(--text3);text-align:center;line-height:1.6;max-width:340px;margin-top:8px">
+          💡 <strong>De ce JSONBin?</strong> Este un serviciu gratuit unde aplicația salvează datele tale ca un fișier JSON. Cheia API e ca o parolă — nu o partaja public. Ambii utilizatori folosesc <strong>aceeași cheie</strong>.
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveApiKey() {
+  const val = document.getElementById('inp-apikey').value.trim();
+  if (!val || val.length < 20) { showToast('Cheie invalidă!','err'); return; }
+  apiKey = val;
+  localStorage.setItem(LS.apiKey, apiKey);
+  showSetupName();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SETUP: USERNAME
+// ════════════════════════════════════════════════════════════════
+function showSetupName() {
+  hideLoader();
+  document.getElementById('root').innerHTML = `
+    <div class="screen">
+      <div class="setup-wrap">
+        <div class="setup-logo">👤</div>
+        <div class="setup-title">Numele tău</div>
+        <div class="setup-sub">Cum să apari pe cheltuielile pe care le adaugi (ca celălalt utilizator să știe cine a făcut ce).</div>
+
+        <div class="setup-card">
+          <label class="form-label">Numele tău</label>
+          <input type="text" class="form-input" id="inp-name" placeholder="Ex: Andrei" style="margin-bottom:12px" maxlength="20">
+          <button class="btn-primary" onclick="saveName()">Continuă →</button>
+        </div>
+
+        <button class="link-btn" onclick="showSetupApiKey()" style="margin-top:8px">← Schimbă cheia API</button>
+      </div>
+    </div>`;
+  setTimeout(()=>document.getElementById('inp-name').focus(), 100);
+  document.getElementById('inp-name').addEventListener('keydown', e => { if(e.key==='Enter') saveName(); });
+}
+
+function saveName() {
+  const val = document.getElementById('inp-name').value.trim();
+  if (!val) { showToast('Adaugă un nume!','err'); return; }
+  userName = val;
+  localStorage.setItem(LS.userName, userName);
+  showSetupDatabase();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SETUP: DATABASE
+// ════════════════════════════════════════════════════════════════
+let setupTab = 'create';
+function showSetupDatabase() {
+  hideLoader();
+  document.getElementById('root').innerHTML = `
+    <div class="screen">
+      <div class="setup-wrap">
+        <div class="setup-logo">🗄️</div>
+        <div class="setup-title">Baza de date</div>
+        <div class="setup-sub">Bună, <strong>${userName}</strong>! Acum alege:</div>
+
+        <div class="setup-card" style="width:100%">
+          <div class="opt-tabs">
+            <button class="opt-tab ${setupTab==='create'?'active':''}" onclick="setSetupTab('create')">✨ Începe nou</button>
+            <button class="opt-tab ${setupTab==='join'?'active':''}" onclick="setSetupTab('join')">🔗 Conectare</button>
+          </div>
+
+          <div id="setup-tab-content"></div>
+        </div>
+
+        <button class="link-btn" onclick="showSetupName()" style="margin-top:8px">← Schimbă numele</button>
+        <button class="link-btn" onclick="resetAll()" style="margin-top:8px;color:var(--danger)">Resetează tot</button>
+      </div>
+    </div>`;
+  renderSetupTab();
+}
+
+function setSetupTab(t) { setupTab = t; renderSetupTab(); document.querySelectorAll('.opt-tab').forEach((b,i)=>{ b.classList.toggle('active', (t==='create'&&i===0)||(t==='join'&&i===1)); }); }
+
+function renderSetupTab() {
+  const c = document.getElementById('setup-tab-content');
+  if (setupTab === 'create') {
+    c.innerHTML = `
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Creează o bază de date nouă. Aplicația îți va da un <strong>cod de partajare</strong> pe care îl trimiți celuilalt utilizator pentru a se conecta.
+      </p>
+      <button class="btn-primary" onclick="createNewDB()">✨ Creează bază de date nouă</button>`;
+  } else {
+    c.innerHTML = `
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Introdu codul de partajare primit de la celălalt utilizator.
+      </p>
+      <label class="form-label">Cod de partajare</label>
+      <input type="text" class="form-input big" id="inp-code" placeholder="abc123def..." style="margin-bottom:12px" autocapitalize="off" autocorrect="off">
+      <button class="btn-primary" onclick="joinExistingDB()">🔗 Conectează-te</button>`;
+  }
+}
+
+async function createNewDB() {
+  setLoader('Se creează baza de date…');
+  try {
+    const db = emptyDB();
+    const id = await jbCreateBin(db);
+    binId = id;
+    shareCode = id;
+    localStorage.setItem(LS.binId, binId);
+    localStorage.setItem(LS.shareCode, shareCode);
+    appData = db;
+    await startApp();
+    setTimeout(showShareCodeModal, 600);
+  } catch(err) {
+    hideLoader();
+    showSetupDatabase();
+    showToast('Eroare: ' + err.message, 'err');
+  }
+}
+
+async function joinExistingDB() {
+  const code = document.getElementById('inp-code').value.trim();
+  if (!code) { showToast('Introdu codul!','err'); return; }
+  setLoader('Se conectează…');
+  try {
+    binId = code;
+    shareCode = code;
+    await loadData();
+    localStorage.setItem(LS.binId, binId);
+    localStorage.setItem(LS.shareCode, shareCode);
+    await startApp();
+  } catch(err) {
+    binId = '';
+    shareCode = '';
+    hideLoader();
+    showSetupDatabase();
+    showToast('Cod invalid sau cheie API greșită','err');
+  }
+}
+
+function showShareCodeModal() {
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-title">📤 Cod de partajare</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+      Trimite acest cod celuilalt utilizator. El va folosi aceeași cheie API JSONBin și acest cod pentru a se conecta la aceleași date.
+    </p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;text-align:center;font-family:monospace;font-size:14px;word-break:break-all;color:var(--accent)" id="code-display">${shareCode}</div>
+    <button class="btn-primary" onclick="copyShareCode()" style="margin-bottom:8px">📋 Copiază codul</button>
+    <button class="btn-secondary" onclick="closeModal()">Am înțeles</button>`;
+  openModal();
+}
+
+function copyShareCode() {
+  navigator.clipboard.writeText(shareCode).then(()=>{
+    showToast('Cod copiat ✓','ok');
+  }).catch(()=>{
+    document.getElementById('code-display').setAttribute('contenteditable','true');
+    document.execCommand('selectAll');
+  });
+}
+
+function resetAll() {
+  if (!confirm('Sigur vrei să resetezi totul (cheia API, numele, codul)?')) return;
+  localStorage.clear();
+  apiKey = ''; binId = ''; shareCode = ''; userName = ''; appData = null;
+  showSetupApiKey();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  START APP
+// ════════════════════════════════════════════════════════════════
+async function startApp() {
+  setLoader('Se încarcă datele…');
+  try {
+    if (!appData) await loadData();
+    renderApp();
+    hideLoader();
+    navigate('home');
+  } catch(err) {
+    hideLoader();
+    document.getElementById('root').innerHTML = `
+      <div class="screen"><div class="setup-wrap">
+        <div style="font-size:48px">⚠️</div>
+        <div class="setup-title">Eroare</div>
+        <div class="setup-sub">${err.message}</div>
+        <button class="btn-primary" onclick="startApp()">Reîncearcă</button>
+        <div style="height:10px"></div>
+        <button class="btn-secondary" onclick="resetAll()">Resetează tot</button>
+      </div></div>`;
+  }
+}
+
+function renderApp() {
+  document.getElementById('root').innerHTML = `
+    <div id="sync-bar"></div>
+    <div class="screen has-nav" id="view-content"></div>
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="navigate('home')" id="nav-home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <span>Acasă</span>
+      </button>
+      <button class="nav-item" onclick="navigate('expenses')" id="nav-expenses">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Cheltuieli</span>
+      </button>
+      <button class="nav-item" onclick="navigate('add')" id="nav-add">
+        <div class="nav-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <span style="margin-top:6px">Adaugă</span>
+      </button>
+      <button class="nav-item" onclick="navigate('budget')" id="nav-budget">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        <span>Buget</span>
+      </button>
+      <button class="nav-item" onclick="navigate('settings')" id="nav-settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Setări</span>
+      </button>
+    </nav>`;
+  renderSyncBar();
+  document.getElementById('view-content').addEventListener('scroll', handleScroll, true);
+}
+
+function renderSyncBar() {
+  const bar = document.getElementById('sync-bar');
+  if (!bar) return;
+  const dotClass = { idle:'', syncing:'syncing', ok:'ok', error:'error' };
+  const labels = { idle:'Inactiv', syncing:'Se sincronizează…', ok:`Sincronizat ${lastSyncAt?formatTime(lastSyncAt):''}`, error:'Eroare' };
+  const initials = (userName||'?').slice(0,2).toUpperCase();
+  bar.innerHTML = `
+    <div class="sync-status">
+      <div class="sync-dot ${dotClass[syncStatus]||''}"></div>
+      <span>${labels[syncStatus]||''}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="sync-btn" onclick="manualSync()">↻ Sync</button>
+      <div class="sync-user"><div class="avatar">${initials}</div></div>
+    </div>`;
+}
+
+async function manualSync() {
+  try {
+    await loadData();
+    renderView();
+    showToast('Date actualizate ✓','ok');
+  } catch(err) {
+    showToast('Eroare: ' + err.message, 'err');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════════════
+function navigate(view) {
+  currentView = view;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+view)?.classList.add('active');
+  document.getElementById('view-content').scrollTop = 0;
+  renderView();
+}
+
+function renderView() {
+  const c = document.getElementById('view-content');
+  if (!c) return;
+  c.innerHTML = '';
+  c.classList.add('fade-in');
+  setTimeout(()=>c.classList.remove('fade-in'),300);
+  const map = { home:renderHome, expenses:renderExpenses, add:()=>renderAdd(null), budget:renderBudget, settings:renderSettings, help:renderHelp };
+  map[currentView]?.();
+}
+
+function handleScroll(e) {
+  if (e.target.id !== 'view-content') return;
+  const h = e.target.querySelector('.page-header');
+  if (h) h.classList.toggle('scrolled', e.target.scrollTop > 6);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  HOME
+// ════════════════════════════════════════════════════════════════
+function renderHome() {
+  const c = document.getElementById('view-content');
+  const exps = monthExps();
+  const monthBudget = appData.budgets?.[selectedMonth] || {};
+  const spentFor = id => exps.filter(e=>e.accountId===id).reduce((s,e)=>s+e.amount,0);
+  const totalSpent  = exps.reduce((s,e)=>s+e.amount,0);
+  const totalBudget = Object.values(monthBudget).reduce((s,v)=>s+(Number(v)||0),0);
+  const pct = totalBudget>0 ? Math.min((totalSpent/totalBudget)*100,100) : 0;
+  const rem = totalBudget - totalSpent;
+
+  let html = `
+    <div class="page-header" style="position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div class="page-title">Cheltuieli RON</div><div class="page-subtitle">Bună, ${userName} 👋</div></div>
+        <div style="font-size:26px">💳</div>
+      </div>
+      <button class="header-action" style="top:50%;transform:translateY(-50%);right:64px" onclick="navigate('help')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+    </div>
+    <div class="month-picker">
+      <button class="month-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></button>
+      <div class="month-label">${formatMonth(selectedMonth)}</div>
+      <button class="month-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg></button>
+    </div>
+    <div class="big-summary">
+      <div class="big-label">Total Cheltuit</div>
+      <div class="big-value">${formatRon(totalSpent)} <span>RON</span></div>
+      ${totalBudget>0 ? `
+      <div class="progress-bar"><div class="progress-fill ${pct>90?'over':''}" style="width:${pct}%"></div></div>
+      <div class="progress-meta">
+        <span>${Math.round(pct)}% din buget</span>
+        <span style="color:${rem<0?'var(--danger)':'var(--accent)'}">${rem<0?'-':''}${formatRon(Math.abs(rem))} lei ${rem<0?'depășit':'rămas'}</span>
+      </div>` : `<div style="font-size:11px;color:var(--text3);margin-top:8px">Setează buget în secțiunea Buget →</div>`}
+    </div>`;
+
+  const accounts = appData.accounts || [];
+  if (accounts.length) {
+    html += `<div class="section-title" style="padding:0 20px 8px;margin:0">📊 Conturi (${accounts.length})</div>`;
+    html += `<div class="acc-cards-row">`;
+    accounts.forEach(acc => {
+      const spent = spentFor(acc.id);
+      const bud   = monthBudget[acc.id] || 0;
+      const remA  = bud - spent;
+      html += `
+        <div class="acc-card t-${acc.type}">
+          <div class="ac-hdr"><span class="ac-emoji">${acc.emoji}</span><span class="ac-name">${acc.name}</span></div>
+          ${acc.owner ? `<div class="ac-owner-tag">👤 ${acc.owner}</div>` : `<div class="ac-owner-tag" style="color:var(--text3)">comun</div>`}
+          <div style="height:6px"></div>
+          <div class="ac-spent">${formatRon(spent)}<span class="cur">lei</span></div>
+          <div class="ac-rem ${remA<0?'over':''}">${bud>0?(remA>=0?`${formatRon(remA)} rămas`:`${formatRon(Math.abs(remA))} depășit`):'— fără buget'}</div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  const recent = [...exps].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  html += `<div class="section"><div class="section-title">Cheltuieli recente</div>`;
+  if (!recent.length) html += `<div class="empty-state"><div class="emoji">🧾</div><p>Nicio cheltuială înregistrată.<br>Apasă <strong>+</strong> pentru a adăuga.</p></div>`;
+  else {
+    html += `<div class="expense-list">${recent.map(expHtml).join('')}</div>`;
+    if (exps.length>5) html += `<div style="text-align:center;margin-top:12px"><button class="btn-secondary" style="width:auto;padding:9px 22px" onclick="navigate('expenses')">Vezi toate (${exps.length})</button></div>`;
+  }
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  EXPENSES
+// ════════════════════════════════════════════════════════════════
+function renderExpenses() {
+  const c = document.getElementById('view-content');
+  const exps = monthExps();
+  let filtered = exps;
+  if (expFilter !== 'all') filtered = exps.filter(e=>e.accountId===expFilter);
+  const sorted = [...filtered].sort((a,b)=>b.date.localeCompare(a.date));
+
+  let html = `
+    <div class="page-header"><div class="page-title">Cheltuieli</div><div class="page-subtitle">${formatMonth(selectedMonth)}</div></div>
+    <div class="month-picker">
+      <button class="month-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></button>
+      <div class="month-label">${formatMonth(selectedMonth)}</div>
+      <button class="month-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg></button>
+    </div>
+    <div class="filter-bar">
+      <div class="chip ${expFilter==='all'?'active':''}" onclick="setFilter('all')">Toate (${exps.length})</div>`;
+  (appData.accounts||[]).forEach(acc => {
+    const n = exps.filter(e=>e.accountId===acc.id).length;
+    const ol = acc.owner ? ` · ${acc.owner}` : '';
+    html += `<div class="chip ${expFilter===acc.id?'active':''}" onclick="setFilter('${acc.id}')">${acc.emoji} ${acc.name}${ol} (${n})</div>`;
+  });
+  html += `</div><div class="section">`;
+
+  if (!sorted.length) {
+    html += `<div class="empty-state"><div class="emoji">📭</div><p>Nicio cheltuială pentru filtrul selectat.</p></div>`;
+  } else {
+    const groups = {};
+    sorted.forEach(e=>{ if(!groups[e.date]) groups[e.date]=[]; groups[e.date].push(e); });
+    html += `<div class="expense-list">`;
+    Object.entries(groups).forEach(([date,items])=>{
+      const dt = items.reduce((s,e)=>s+e.amount,0);
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0 3px;border-top:1px solid var(--border);margin-top:4px">
+        <span style="font-size:11px;font-weight:600;color:var(--text2)">${formatDate(date)}</span>
+        <span style="font-size:11px;color:var(--text3)">${formatRon(dt)} lei</span>
+      </div>${items.map(expHtml).join('')}`;
+    });
+    html += `</div>`;
+    const total = filtered.reduce((s,e)=>s+e.amount,0);
+    html += `<div style="margin-top:14px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:600;color:var(--text2)">Total</span>
+      <span style="font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:var(--danger)">${formatRon(total)} <span style="font-size:12px;color:var(--text2)">lei</span></span>
+    </div>`;
+  }
+  html += `</div>`;
+  c.innerHTML = html;
+}
+function setFilter(f) { expFilter=f; renderExpenses(); }
+
+// ════════════════════════════════════════════════════════════════
+//  ADD/EDIT
+// ════════════════════════════════════════════════════════════════
+function renderAdd(editExp) {
+  const c = document.getElementById('view-content');
+  const isEdit = !!editExp;
+  const accounts = appData.accounts || [];
+  if (isEdit) {
+    addForm = { amount:String(editExp.amount), description:editExp.description, categoryId:editExp.categoryId, accountId:editExp.accountId||('acc-'+(editExp.method||'cash')), date:editExp.date };
+    editingId = editExp.id;
+  } else {
+    addForm = { amount:'', description:'', categoryId: appData.categories[0]?.id||'', accountId: accounts[0]?.id||'', date:todayStr() };
+    editingId = null;
+  }
+
+  const catBtns = appData.categories.map(cat=>`
+    <div class="cat-btn ${addForm.categoryId===cat.id?'sel':''}" onclick="selectCat('${cat.id}',this)"><div class="ce">${cat.emoji}</div><div>${cat.name}</div></div>`).join('');
+
+  const accPills = accounts.map(acc => {
+    const sel = addForm.accountId === acc.id ? `sel-${acc.type}` : '';
+    return `<div class="acc-pill ${sel}" onclick="selectAccount('${acc.id}','${acc.type}',this)">
+      <span class="ap-emoji">${acc.emoji}</span>
+      <span class="ap-name">${acc.name}</span>
+      ${acc.owner ? `<span class="ap-owner">👤 ${acc.owner}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">${isEdit?'Editează':'Cheltuială nouă'}</div>
+      <div class="page-subtitle">${isEdit?'Modifică detaliile':'Completează detaliile'}</div>
+    </div>
+    <div class="form-view">
+      <div class="form-group">
+        <label class="form-label-sm">Suma (RON)</label>
+        <div class="amount-wrap">
+          <input type="number" class="form-inp amount-inp" id="inp-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" value="${addForm.amount}" oninput="addForm.amount=this.value">
+          <span class="amount-cur">lei</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label-sm">Descriere</label>
+        <input type="text" class="form-inp" placeholder="Ex: Cumpărături Mega" value="${addForm.description}" oninput="addForm.description=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label-sm">Cont (metoda de plată)</label>
+        <div class="acc-picker">${accPills || '<span style="font-size:12px;color:var(--text3);padding:8px">Adaugă conturi în Setări</span>'}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label-sm">Categorie</label>
+        <div class="cat-grid">${catBtns}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label-sm">Data</label>
+        <input type="date" class="form-inp" value="${addForm.date}" onchange="addForm.date=this.value">
+      </div>
+      <button class="btn-primary" onclick="saveExpense()">${isEdit?'✓ Salvează':'+ Adaugă Cheltuială'}</button>
+      ${isEdit?`<div style="height:10px"></div><button class="btn-secondary" onclick="navigate('expenses')">Anulează</button>`:''}
+      <div style="height:20px"></div>
+    </div>`;
+  setTimeout(()=>document.getElementById('inp-amount')?.focus(),150);
+}
+
+function selectCat(id,el) { addForm.categoryId=id; document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('sel')); el.classList.add('sel'); }
+function selectAccount(id,type,el) {
+  addForm.accountId = id;
+  document.querySelectorAll('.acc-pill').forEach(b=>b.classList.remove('sel-cash','sel-card','sel-tichete'));
+  el.classList.add('sel-'+type);
+}
+
+function saveExpense() {
+  const amount = parseFloat(addForm.amount);
+  if (!amount||amount<=0) { showToast('Sumă invalidă!','err'); return; }
+  if (!addForm.description.trim()) { showToast('Adaugă o descriere!','err'); return; }
+  if (!addForm.date) { showToast('Selectează o dată!','err'); return; }
+  if (!addForm.accountId) { showToast('Alege un cont!','err'); return; }
+  if (!addForm.categoryId) addForm.categoryId = appData.categories[0]?.id||'c9';
+
+  const acc = getAccount(addForm.accountId);
+  const rec = {
+    id: editingId||genId(),
+    amount,
+    description: addForm.description.trim(),
+    categoryId:  addForm.categoryId,
+    accountId:   addForm.accountId,
+    method:      acc.type,
+    date:        addForm.date,
+    addedBy:     userName,
+    updatedAt:   new Date().toISOString(),
+  };
+
+  if (editingId) {
+    const idx = appData.expenses.findIndex(e=>e.id===editingId);
+    if (idx!==-1) appData.expenses[idx] = {...appData.expenses[idx], ...rec};
+    showToast('Actualizat ✓','ok');
+  } else {
+    rec.createdAt = new Date().toISOString();
+    appData.expenses.push(rec);
+    showToast('Adăugat ✓','ok');
+  }
+  selectedMonth = monthKey(addForm.date);
+  scheduleSave();
+  navigate('home');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  BUDGET
+// ════════════════════════════════════════════════════════════════
+function renderBudget() {
+  const c = document.getElementById('view-content');
+  const monthBudget = appData.budgets?.[selectedMonth] || {};
+  const exps = monthExps();
+  const accounts = appData.accounts || [];
+  const spentFor = id => exps.filter(e=>e.accountId===id).reduce((s,e)=>s+e.amount,0);
+  const totalBudget = accounts.reduce((s,a)=>s+(Number(monthBudget[a.id])||0),0);
+  const totalSpent  = exps.reduce((s,e)=>s+e.amount,0);
+
+  let html = `
+    <div class="page-header"><div class="page-title">Buget</div><div class="page-subtitle">${formatMonth(selectedMonth)}</div></div>
+    <div class="month-picker">
+      <button class="month-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></button>
+      <div class="month-label">${formatMonth(selectedMonth)}</div>
+      <button class="month-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg></button>
+    </div>
+    <div class="section">`;
+
+  if (!accounts.length) {
+    html += `<div class="empty-state"><div class="emoji">🏦</div><p>Nu ai conturi.<br>Adaugă din <strong>Setări</strong>.</p></div>`;
+  } else {
+    accounts.forEach(acc => {
+      const spent = spentFor(acc.id);
+      const bud   = Number(monthBudget[acc.id])||0;
+      const rem   = bud - spent;
+      const iconCls = acc.type==='cash'?'cash-icon':acc.type==='card'?'card-icon':'tichete-icon';
+      html += `
+        <div class="budget-card">
+          <div class="bud-hdr">
+            <div class="bud-icon ${iconCls}">${acc.emoji}</div>
+            <div style="flex:1;min-width:0">
+              <div class="bud-title">${acc.name}</div>
+              <div class="bud-desc">${acc.owner?`👤 ${acc.owner} · `:'Cont comun · '}${acc.type==='cash'?'cash':acc.type==='card'?'card':'tichete masă'}</div>
+            </div>
+          </div>
+          <div class="bud-row">
+            <div class="bud-inp-wrap"><input type="number" id="bud-${acc.id}" value="${bud||''}" placeholder="0" inputmode="decimal" step="0.01"><span class="sfx">lei</span></div>
+            <button class="save-btn" onclick="saveBudget('${acc.id}')">Salvează</button>
+          </div>
+          <div class="stat-row"><span class="stat-label">Cheltuit</span><span class="stat-value red">${formatRon(spent)} lei</span></div>
+          <div class="stat-row"><span class="stat-label">Rămas</span><span class="stat-value ${rem>=0?'green':'red'}">${formatRon(rem)} lei</span></div>
+        </div>`;
+    });
+    html += `
+      <div class="budget-card" style="background:linear-gradient(135deg,#1a2535,#0f1a2a)">
+        <div class="section-title" style="margin-bottom:10px">📊 Rezumat total</div>
+        <div class="stat-row" style="border-top:none"><span class="stat-label">Buget total</span><span class="stat-value">${formatRon(totalBudget)} lei</span></div>
+        <div class="stat-row"><span class="stat-label">Total cheltuit</span><span class="stat-value red">${formatRon(totalSpent)} lei</span></div>
+        <div class="stat-row"><span class="stat-label">Total rămas</span><span class="stat-value ${(totalBudget-totalSpent)>=0?'green':'red'}">${formatRon(totalBudget-totalSpent)} lei</span></div>
+      </div>`;
+  }
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+function saveBudget(accountId) {
+  const val = parseFloat(document.getElementById(`bud-${accountId}`).value)||0;
+  if (!appData.budgets) appData.budgets = {};
+  if (!appData.budgets[selectedMonth]) appData.budgets[selectedMonth] = {};
+  appData.budgets[selectedMonth][accountId] = val;
+  scheduleSave();
+  showToast(`Buget "${getAccount(accountId).name}" salvat ✓`,'ok');
+  renderBudget();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════════════════════════════════
+function renderSettings() {
+  const c = document.getElementById('view-content');
+  const usage = {};
+  appData.expenses.forEach(e=>{ usage[e.categoryId]=(usage[e.categoryId]||0)+1; });
+  const accUsage = {};
+  appData.expenses.forEach(e=>{ accUsage[e.accountId]=(accUsage[e.accountId]||0)+1; });
+
+  let catItems = appData.categories.map(cat=>`
+    <div class="cat-item">
+      <div class="cat-item-emoji">${cat.emoji}</div>
+      <div class="cat-item-name">${cat.name}</div>
+      <div style="font-size:10px;color:var(--text3);margin-right:6px">${(usage[cat.id]||0)>0?(usage[cat.id]||0)+' chelt.':''}</div>
+      <button class="icon-btn" onclick="editCat('${cat.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="icon-btn del" onclick="delCat('${cat.id}',${usage[cat.id]||0})"><svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg></button>
+    </div>`).join('');
+
+  let accItems = (appData.accounts||[]).map(acc=>`
+    <div class="acc-item t-${acc.type}">
+      <div class="acc-item-emoji">${acc.emoji}</div>
+      <div class="acc-item-info">
+        <div class="acc-item-name">${acc.name}</div>
+        <div class="acc-item-meta">${acc.type==='cash'?'💵 Cash':acc.type==='card'?'💳 Card':'🎟️ Tichete'} · ${acc.owner?`👤 ${acc.owner}`:'Comun'} ${(accUsage[acc.id]||0)>0?`· ${accUsage[acc.id]} chelt.`:''}</div>
+      </div>
+      <button class="icon-btn" onclick="editAcc('${acc.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="icon-btn del" onclick="delAcc('${acc.id}',${accUsage[acc.id]||0})"><svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg></button>
+    </div>`).join('');
+
+  c.innerHTML = `
+    <div class="page-header"><div class="page-title">Setări</div><div class="page-subtitle">Cont și configurare</div></div>
+    <div class="settings-view">
+
+      <button class="btn-secondary" onclick="navigate('help')" style="margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;border-color:rgba(0,214,143,0.3);color:var(--accent);background:var(--accent-dim)">
+        <span style="font-size:16px">📖</span><span>Cum funcționează (ghid)</span>
+      </button>
+
+      <div class="section-title" style="margin-bottom:8px">👤 Cont</div>
+      <div class="budget-card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div class="avatar" style="width:42px;height:42px;font-size:16px;border-radius:50%">${(userName||'?').slice(0,2).toUpperCase()}</div>
+          <div><div style="font-weight:600;font-size:14px">${userName}</div><div style="font-size:12px;color:var(--text2)">utilizator</div></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>🏦 Conturi (${(appData.accounts||[]).length})</span>
+        <button class="link-btn" onclick="showAddAccountModal()" style="font-size:12px;text-transform:none;letter-spacing:normal">+ Adaugă cont</button>
+      </div>
+      <div style="margin-bottom:8px">${accItems}</div>
+      <div style="font-size:11px;color:var(--text3);margin:4px 0 14px;line-height:1.5">💡 Adaugă conturi separate pentru fiecare utilizator (ex: "Cash Andrei", "Card Maria").</div>
+
+      <div class="section-title" style="margin-bottom:8px">☁️ Sincronizare cloud</div>
+      <div class="budget-card" style="margin-bottom:14px">
+        <div class="info-row" style="border-top:none"><span class="info-label">Cod partajare</span><span class="info-value" style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${shareCode}</span></div>
+        <div class="info-row"><span class="info-label">Ultima sincronizare</span><span class="info-value">${lastSyncAt?formatTime(lastSyncAt):'—'}</span></div>
+        <div class="info-row"><span class="info-label">Modificat de</span><span class="info-value">${lastSyncBy||'—'}</span></div>
+        <div class="info-row"><span class="info-label">Cheltuieli totale</span><span class="info-value">${appData.expenses.length}</span></div>
+        <div style="height:10px"></div>
+        <button class="btn-secondary" onclick="showShareCodeModal()" style="margin-bottom:8px">📤 Arată codul (partajare)</button>
+        <button class="btn-secondary" onclick="manualSync()">↻ Sincronizează acum</button>
+      </div>
+
+      <div class="section-title" style="margin-bottom:8px">🏷️ Categorii</div>
+      <div class="cat-add-form">
+        <input type="text" class="emoji-inp" id="new-emoji" placeholder="😊" maxlength="2">
+        <input type="text" class="name-inp" id="new-name" placeholder="Nume categorie">
+        <button class="cat-add-btn" onclick="addCat()">+ Adaugă</button>
+      </div>
+      ${catItems}
+
+      <div style="height:8px"></div>
+      <div class="section-title" style="margin-bottom:8px">⚠️ Date</div>
+      <button class="btn-secondary btn-danger" onclick="confirmReset()" style="margin-bottom:8px">Șterge cheltuieli luna curentă</button>
+      <button class="btn-secondary btn-danger" onclick="resetAll()">Resetează tot (deconectare)</button>
+    </div>`;
+
+  document.getElementById('new-name').addEventListener('keydown',e=>{ if(e.key==='Enter') addCat(); });
+}
+
+// ── Account management ──
+function showAddAccountModal(editingAcc) {
+  const isEdit = !!editingAcc;
+  const acc = editingAcc || { name:'', type:'cash', emoji:'💵', owner:'' };
+  // Get all known names from existing data
+  const knownNames = [...new Set([userName, ...((appData.expenses||[]).map(e=>e.addedBy).filter(Boolean))])];
+  const ownerOpts = knownNames.map(n => `<option value="${n}" ${acc.owner===n?'selected':''}>👤 ${n}</option>`).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-title">${isEdit?'Editează cont':'Cont nou'}</div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label-sm">Nume cont</label>
+      <input type="text" class="form-inp" id="new-acc-name" placeholder="Ex: Cash Andrei, Card BCR..." value="${acc.name}">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label-sm">Tip</label>
+      <div class="toggle-group">
+        <button class="tog-btn ${acc.type==='cash'?'cash-on':''}" id="acc-type-cash" onclick="setAccType('cash')"><span class="tog-emoji">💵</span><span>Cash</span></button>
+        <button class="tog-btn ${acc.type==='card'?'card-on':''}" id="acc-type-card" onclick="setAccType('card')"><span class="tog-emoji">💳</span><span>Card</span></button>
+        <button class="tog-btn ${acc.type==='tichete'?'tichete-on':''}" id="acc-type-tichete" onclick="setAccType('tichete')"><span class="tog-emoji">🎟️</span><span>Tichete</span></button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label-sm">Emoji</label>
+      <input type="text" class="form-inp" id="new-acc-emoji" maxlength="2" value="${acc.emoji}" style="text-align:center;font-size:24px">
+    </div>
+    <div class="form-group" style="margin-bottom:18px">
+      <label class="form-label-sm">Proprietar (opțional)</label>
+      <select class="form-inp" id="new-acc-owner">
+        <option value="" ${!acc.owner?'selected':''}>Cont comun (fără proprietar)</option>
+        ${ownerOpts}
+      </select>
+    </div>
+    ${isEdit?`<button class="btn-primary" onclick="saveEditAcc('${acc.id}')">Salvează</button>`:`<button class="btn-primary" onclick="saveNewAcc()">+ Adaugă cont</button>`}`;
+  pendingAccType = acc.type;
+  openModal();
+}
+
+function setAccType(t) {
+  pendingAccType = t;
+  document.querySelectorAll('#modal-content .tog-btn').forEach(b=>b.classList.remove('cash-on','card-on','tichete-on'));
+  document.getElementById('acc-type-'+t).classList.add(t+'-on');
+  const emojiInp = document.getElementById('new-acc-emoji');
+  const defaults = { cash:'💵', card:'💳', tichete:'🎟️' };
+  if (Object.values(defaults).includes(emojiInp.value)) emojiInp.value = defaults[t];
+}
+
+function saveNewAcc() {
+  const name  = document.getElementById('new-acc-name').value.trim();
+  const emoji = document.getElementById('new-acc-emoji').value.trim()||'💵';
+  const owner = document.getElementById('new-acc-owner').value;
+  if (!name) { showToast('Adaugă un nume!','err'); return; }
+  appData.accounts.push({ id: genId(), name, type: pendingAccType, emoji, owner });
+  scheduleSave();
+  closeModal();
+  showToast('Cont adăugat ✓','ok');
+  renderSettings();
+}
+
+function editAcc(id) {
+  const acc = appData.accounts.find(a=>a.id===id);
+  if (acc) showAddAccountModal(acc);
+}
+
+function saveEditAcc(id) {
+  const name  = document.getElementById('new-acc-name').value.trim();
+  const emoji = document.getElementById('new-acc-emoji').value.trim()||'💵';
+  const owner = document.getElementById('new-acc-owner').value;
+  if (!name) { showToast('Adaugă un nume!','err'); return; }
+  const acc = appData.accounts.find(a=>a.id===id);
+  if (acc) { acc.name=name; acc.emoji=emoji; acc.owner=owner; acc.type=pendingAccType; }
+  scheduleSave();
+  closeModal();
+  showToast('Cont actualizat ✓','ok');
+  renderSettings();
+}
+
+function delAcc(id, count) {
+  const acc = appData.accounts.find(a=>a.id===id);
+  if (!acc) return;
+  if (count>0 && !confirm(`Contul "${acc.name}" are ${count} cheltuieli. Continui?`)) return;
+  if (count===0 && !confirm(`Ștergi contul "${acc.name}"?`)) return;
+  appData.accounts = appData.accounts.filter(a=>a.id!==id);
+  Object.values(appData.budgets||{}).forEach(b=>{ delete b[id]; });
+  scheduleSave();
+  showToast('Cont șters','ok');
+  renderSettings();
+}
+
+function addCat() {
+  const emoji = document.getElementById('new-emoji').value.trim()||'📦';
+  const name  = document.getElementById('new-name').value.trim();
+  if (!name) { showToast('Adaugă un nume!','err'); return; }
+  appData.categories.push({ id: genId(), name, emoji });
+  scheduleSave();
+  showToast('Adăugat ✓','ok');
+  renderSettings();
+}
+
+function delCat(id,count) {
+  const cat = getCat(id);
+  if (!confirm(`Ștergi "${cat.name}"${count>0?` (${count} cheltuieli)`:''}?`)) return;
+  appData.categories = appData.categories.filter(c=>c.id!==id);
+  scheduleSave();
+  showToast('Șters','ok');
+  renderSettings();
+}
+
+function editCat(id) {
+  const cat = getCat(id);
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-title">Editează</div>
+    <div class="form-group" style="margin-bottom:14px"><label class="form-label-sm">Emoji</label><input type="text" class="form-inp" id="e-emoji" value="${cat.emoji}" maxlength="2" style="text-align:center;font-size:30px"></div>
+    <div class="form-group" style="margin-bottom:16px"><label class="form-label-sm">Nume</label><input type="text" class="form-inp" id="e-name" value="${cat.name}"></div>
+    <button class="btn-primary" onclick="saveEditCat('${id}')">Salvează</button>`;
+  openModal();
+}
+
+function saveEditCat(id) {
+  const emoji = document.getElementById('e-emoji').value.trim()||'📦';
+  const name  = document.getElementById('e-name').value.trim();
+  if (!name) { showToast('Adaugă un nume!','err'); return; }
+  const cat = appData.categories.find(c=>c.id===id);
+  if (cat) { cat.emoji=emoji; cat.name=name; }
+  scheduleSave();
+  closeModal();
+  showToast('Actualizat ✓','ok');
+  renderSettings();
+}
+
+function confirmReset() {
+  if (!confirm(`Ștergi toate cheltuielile din ${formatMonth(selectedMonth)}?`)) return;
+  appData.expenses = appData.expenses.filter(e=>monthKey(e.date)!==selectedMonth);
+  scheduleSave();
+  showToast('Șterse ✓','ok');
+  renderSettings();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  EXPENSE HTML
+// ════════════════════════════════════════════════════════════════
+function expHtml(exp) {
+  const cat = getCat(exp.categoryId);
+  const acc = getAccount(exp.accountId||('acc-'+(exp.method||'cash')));
+  const type = acc.type||'cash';
+  const isMine = exp.addedBy === userName || !exp.addedBy;
+  const itemCls = type==='cash'?'cash-item':type==='card'?'card-item':'tichete-item';
+  const iconBg  = type==='cash'?'var(--accent-dim)':type==='card'?'var(--card-dim)':'var(--tichete-dim)';
+  const badgeCls = type==='cash'?'badge-cash':type==='card'?'badge-card':'badge-tichete';
+  const author = exp.addedBy||userName;
+  const initials = author.slice(0,2).toUpperCase();
+  const accLabel = `${acc.emoji} ${acc.name}${acc.owner?` (${acc.owner})`:''}`;
+
+  return `
+    <div class="expense-item ${itemCls}">
+      <div class="exp-icon" style="background:${iconBg}">${cat.emoji}</div>
+      <div class="exp-info">
+        <div class="exp-desc">${exp.description}</div>
+        <div class="exp-meta">
+          <span class="exp-badge ${badgeCls}">${accLabel}</span>
+          ${cat.name} · ${formatDate(exp.date)}
+          <span class="added-by"><span class="ab-avatar ${isMine?'ab-me':'ab-other'}">${initials}</span>${author}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="exp-amount">-${formatRon(exp.amount)}</div>
+        <div class="exp-actions">
+          <button class="icon-btn" onclick="startEdit('${exp.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="icon-btn del" onclick="deleteExpense('${exp.id}')"><svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function startEdit(id) {
+  const exp = appData.expenses.find(e=>e.id===id);
+  if (!exp) return;
+  currentView = 'add';
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-add').classList.add('active');
+  renderAdd(exp);
+}
+
+function deleteExpense(id) {
+  if (!confirm('Ștergi această cheltuială?')) return;
+  appData.expenses = appData.expenses.filter(e=>e.id!==id);
+  scheduleSave();
+  showToast('Șters','ok');
+  renderView();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  HELP
+// ════════════════════════════════════════════════════════════════
+function renderHelp() {
+  const c = document.getElementById('view-content');
+  c.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="navigate('home')"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>Înapoi</button>
+      <div class="page-title">Cum funcționează</div>
+      <div class="page-subtitle">Ghid de utilizare</div>
+    </div>
+    <div class="help-view">
+
+      <div class="help-section">
+        <h3>🚀 Început rapid</h3>
+        <p>Aplicația te ajută să urmărești cheltuielile lunare în <strong>RON</strong>. Datele sunt stocate în cloud (JSONBin) și se sincronizează între 2 utilizatori care folosesc același <strong>cod de partajare</strong>.</p>
+        <ul>
+          <li>Apasă <strong>+</strong> verde din mijlocul barei pentru a adăuga o cheltuială</li>
+          <li>Vezi rezumatul lunar pe ecranul <strong>Acasă</strong></li>
+          <li>Setează bugete în <strong>Buget</strong></li>
+          <li>Configurează conturi și categorii în <strong>Setări</strong></li>
+        </ul>
+      </div>
+
+      <div class="help-section">
+        <h3>👥 Doi utilizatori — cum să partajezi</h3>
+        <p><strong>Primul utilizator (creatorul):</strong></p>
+        <ul>
+          <li>Își face cont gratuit pe <a href="https://jsonbin.io" target="_blank">jsonbin.io</a></li>
+          <li>Își ia cheia API → o pune în aplicație</li>
+          <li>Își alege un nume → creează baza de date nouă</li>
+          <li>Mergi la <em>Setări → Arată codul</em> și trimite-i celuilalt: <strong>cheia API</strong> + <strong>codul de partajare</strong></li>
+        </ul>
+        <p><strong>Al doilea utilizator:</strong></p>
+        <ul>
+          <li>Deschide aplicația, pune <strong>aceeași cheie API</strong> primită</li>
+          <li>Își alege un nume diferit (ex: Maria)</li>
+          <li>Pe ecranul "Baza de date" alege <strong>🔗 Conectare</strong></li>
+          <li>Lipește codul de partajare → Conectează-te</li>
+        </ul>
+        <div class="help-tip"><strong>💡 Tip:</strong> Pe fiecare cheltuială vezi cine a adăugat-o (avatar verde = tu, albastru = celălalt).</div>
+      </div>
+
+      <div class="help-section">
+        <h3>🏦 Conturi (metodele de plată)</h3>
+        <p>Conturile reprezintă <strong>de unde plătești</strong>. Implicit ai 3: Cash, Card, Tichete.</p>
+        <p>Pentru 2 utilizatori, recomandare:</p>
+        <ul>
+          <li>Editează "Cash" → "Cash Andrei", proprietar: Andrei</li>
+          <li>Adaugă "Cash Maria", proprietar: Maria</li>
+          <li>Repetă pentru Card și Tichete</li>
+        </ul>
+        <p>Adaugă/editează în <em>Setări → 🏦 Conturi</em>.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>💰 Buget lunar</h3>
+        <p>Bugetul este per <strong>lună</strong> și per <strong>cont</strong>. Mergi la <strong>Buget</strong>, schimbi luna cu săgețile ←/→, și pentru fiecare cont scrii suma și apeși Salvează.</p>
+        <p>Pe Acasă, bara verde de progres îți arată cât din bugetul total ai folosit.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>🔄 Sincronizare</h3>
+        <p>Toate datele se salvează automat în cloud după ~1.5 secunde de la modificare. Apasă <strong>↻ Sync</strong> în bara de sus pentru a forța preluarea datelor celuilalt utilizator.</p>
+        <p><strong>Status:</strong> 🟢 = sincronizat, 🔄 = se sincronizează, 🔴 = eroare.</p>
+        <div class="help-tip"><strong>💡 Tip:</strong> Apasă Sync înainte să modifici dacă celălalt a folosit recent aplicația — eviți suprascrierea.</div>
+      </div>
+
+      <div class="help-section">
+        <h3>📲 Instalare pe telefon</h3>
+        <p>Pentru a avea aplicația pe ecranul principal:</p>
+        <ul>
+          <li>Deschide aplicația în <strong>Chrome</strong> pe Android</li>
+          <li>Meniu <strong>⋮</strong> → <strong>Add to Home Screen</strong></li>
+          <li>Confirmă numele → Add</li>
+        </ul>
+        <p>Pe iPhone (Safari): <em>Share → Add to Home Screen</em>.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>🛠️ Probleme</h3>
+        <p><strong>"Cod invalid sau cheie API greșită"</strong> — verifică că ambii utilizatori folosesc aceeași cheie API JSONBin.</p>
+        <p><strong>"Eroare sincronizare"</strong> — apasă ↻ Sync. Dacă persistă, verifică conexiunea la internet.</p>
+        <p><strong>Nu se actualizează modificările celuilalt</strong> — apasă manual ↻ Sync. Sincronizarea automată se întâmplă doar când modifici tu ceva.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>🔒 Confidențialitate</h3>
+        <ul>
+          <li>Datele sunt stocate pe JSONBin într-un fișier privat</li>
+          <li>Doar persoanele cu cheia API + codul de partajare pot accesa datele</li>
+          <li>Nu partaja cheia API public (ea îți permite să accesezi toate fișierele tale JSONBin)</li>
+          <li>Pentru a șterge totul: deconectare (Resetează tot) + șterge bin-ul de pe jsonbin.io</li>
+        </ul>
+      </div>
+
+      <div style="text-align:center;margin-top:24px;padding:20px;color:var(--text3);font-size:11px">
+        <div style="font-size:24px;margin-bottom:8px">💳</div>
+        Cheltuieli RON · v3 (JSONBin Cloud)
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════
+function changeMonth(dir) { selectedMonth=shiftMonth(selectedMonth,dir); renderView(); }
+function openModal()  { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+let toastTmr;
+function showToast(msg,type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(()=>{ t.className='toast'; }, 2800);
+}
+</script>
+</body>
+</html>
